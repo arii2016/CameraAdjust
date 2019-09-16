@@ -60,6 +60,7 @@ def init_el_board():
         Lb_Judge.configure(text='起動失敗')
         return False
 
+    return True
 
 # 撮像
 def capture():
