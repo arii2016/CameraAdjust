@@ -8,7 +8,6 @@ import numpy
 from PIL import Image, ImageTk
 import Tkinter
 import threading
-# from io import BytesIO
 
 SERIAL_PORT = ""
 DEF_IMG_W = 1600
@@ -41,6 +40,7 @@ def init_el_board():
     device.write("S01\n")
     strRet = get_line(device)
     if strRet != "OK":
+        Lb_Judge.configure(text='reboot失敗')
         return False
 
     while True:
@@ -57,6 +57,7 @@ def init_el_board():
     device.write("E01\n")
     strRet = get_line(device)
     if strRet == "NG":
+        Lb_Judge.configure(text='起動失敗')
         return False
 
 
@@ -80,16 +81,6 @@ def capture():
         if iSize <= iCnt:
             break
 
-    # try:
-    #     img = Image.open(BytesIO(datas))
-    # except:
-    #     Lb_Judge.configure(text='撮像失敗')
-    #     return
-
-    # img = img.resize((MAIN_IMG_W, MAIN_IMG_H))
-    # main_canvas.photo = ImageTk.PhotoImage(img)
-    # main_canvas.create_image(0, 0, image=canvas.photo, anchor=Tkinter.NW)
-
     img_array = numpy.fromstring(datas, numpy.uint8)
     src_img = cv2.imdecode(img_array, cv2.IMREAD_COLOR)
     img = Image.fromarray(src_img)
@@ -105,23 +96,16 @@ def capture():
     mean, stddev = cv2.meanStdDev(abs_img)
     Lb_Judge.configure(text=str(int(stddev[0] * stddev[0])))
 
-    # # 拡大画像表示
-    # crop_img = Image.fromarray(src_img[700 : 900, 525 : 675])
-    # up_canvas.photo = ImageTk.PhotoImage(crop_img)
-    # up_canvas.create_image(0, 0, image=up_canvas.photo, anchor=Tkinter.NW)
-
 
 def th_init_el_board(event):
     Lb_Judge.configure(text='起動中')
-    init_el_board()
-    Lb_Judge.configure(text='起動完了')
+    if init_el_board() == True:
+        Lb_Judge.configure(text='起動完了')
 
     lock.release()
 
 def th_capture(event):
     Lb_Judge.configure(text='撮影中')
-    # up_canvas.delete("all")
-    # lap_canvas.delete("all")
     main_canvas.delete("all")
 
     capture()
@@ -160,20 +144,8 @@ root = Tkinter.Tk()
 root.geometry("{0}x{1}+0+0".format(root.winfo_screenwidth(), root.winfo_screenheight()))
 root.bind("<Key>", key)
 
-# frame = Tkinter.Frame(root)
-# frame.pack(side='left', expand=True, fill="both")
-
 Lb_Judge = Tkinter.Label(root, text='--', height=4, font=("", 50))
-# Lb_Judge.pack(side='top', expand=True, fill="x")
 Lb_Judge.pack(side='left', expand=True, fill="x")
-
-# UP_IMG_W = 200
-# UP_IMG_H = 150
-# up_canvas = Tkinter.Canvas(frame, bg = "black", width=UP_IMG_W, height=UP_IMG_H)
-# up_canvas.pack(side='top')
-
-# lap_canvas = Tkinter.Canvas(frame, bg = "black", width=UP_IMG_W, height=UP_IMG_H)
-# lap_canvas.pack(side='top')
 
 MAIN_IMG_W = root.winfo_screenwidth() / 4 * 3
 MAIN_IMG_H = int(round(DEF_IMG_H * MAIN_IMG_W / DEF_IMG_W))
