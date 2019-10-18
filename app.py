@@ -67,8 +67,26 @@ def init_el_board():
     device.write("E01\n")
     strRet = get_line(device)
     if strRet != "OK":
-        Lb_Judge.configure(text='起動失敗')
+        Lb_Judge.configure(text='起動失敗1')
         return False
+
+    # 撮像
+    device.write("C01\n")
+    strRet = get_command(device)
+    if strRet == "NG":
+        Lb_Judge.configure(text='起動失敗2')
+        return False
+
+    iSize = int(strRet)
+    iCnt = 0
+    datas = ""
+    while True:
+        chars = device.read(30000)
+        if len(chars) > 0:
+            datas = datas + chars
+            iCnt = iCnt + len(chars)
+        if iSize <= iCnt:
+            break
 
     return True
 
