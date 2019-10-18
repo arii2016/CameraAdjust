@@ -12,13 +12,12 @@ import threading
 SERIAL_PORT = ""
 DEF_IMG_W = 1600
 DEF_IMG_H = 1200
-CMD_TIME_OUT = 10.0
 
 def get_command(device):
     rx_buffer = ""
     timeout = time.time()
     while True:
-        if (time.time() - timeout) > CMD_TIME_OUT:
+        if (time.time() - timeout) > 5.0:
             return "NG"
         chars = device.read()
         if chars == ",":
@@ -30,7 +29,7 @@ def get_line(device):
     rx_buffer = ""
     timeout = time.time()
     while True:
-        if (time.time() - timeout) > CMD_TIME_OUT:
+        if (time.time() - timeout) > 3.0:
             return "NG"
         chars = device.read()
         if chars == "\n":
@@ -47,10 +46,14 @@ def init_el_board():
     device.write("S01\n")
     strRet = get_line(device)
     if strRet != "OK":
-        Lb_Judge.configure(text='reboot失敗')
+        Lb_Judge.configure(text='reboot1失敗')
         return False
 
+    timeout = time.time()
     while True:
+        if (time.time() - timeout) > 5.0:
+            Lb_Judge.configure(text='reboot2失敗')
+            return False
         device.write(chr(0x16))
         chars = device.read()
         if chars == chr(0x06):
