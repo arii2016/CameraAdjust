@@ -70,24 +70,6 @@ def init_el_board():
         Lb_Judge.configure(text='起動失敗1')
         return False
 
-    # 撮像
-    device.write("C01\n")
-    strRet = get_command(device)
-    if strRet == "NG":
-        Lb_Judge.configure(text='起動失敗2')
-        return False
-
-    iSize = int(strRet)
-    iCnt = 0
-    datas = ""
-    while True:
-        chars = device.read(30000)
-        if len(chars) > 0:
-            datas = datas + chars
-            iCnt = iCnt + len(chars)
-        if iSize <= iCnt:
-            break
-
     return True
 
 # 撮像
@@ -154,10 +136,13 @@ def key(event):
 
 
 # ポート番号を取得する##################################
-if sys.platform == "linux" or sys.platform == "linux2":
-    matched_ports = list_ports.grep("ttyUSB")
-elif sys.platform == "darwin":
-    matched_ports = list_ports.grep("cu.usbserial-")
+if os.name == 'nt':
+    matched_ports = list_ports.grep("USB Serial Port ")
+elif os.name == 'posix':
+    if sys.platform == "linux" or sys.platform == "linux2":
+        matched_ports = list_ports.grep("ttyUSB")
+    elif sys.platform == "darwin":
+        matched_ports = list_ports.grep("cu.usbserial-")
 for match_tuple in matched_ports:
     SERIAL_PORT = match_tuple[0]
     break
