@@ -12,8 +12,10 @@ import threading
 SERIAL_PORT = ""
 DEF_IMG_W = 1600
 DEF_IMG_H = 1200
-UP_IMG_W = 350
-UP_IMG_H = 350
+UP_SHOW_IMG_W = 360
+UP_SHOW_IMG_H = 360
+UP_IMG_W = 240
+UP_IMG_H = 240
 
 def get_command(device):
     rx_buffer = ""
@@ -103,7 +105,8 @@ def capture():
     main_canvas.create_image(0, 0, image=main_canvas.photo, anchor=Tkinter.NW)
     # 拡大画像
     up_img = img.crop(((DEF_IMG_W / 2) - (UP_IMG_W / 2), (DEF_IMG_H / 2) - (UP_IMG_H / 2), (DEF_IMG_W / 2) + (UP_IMG_W / 2), (DEF_IMG_H / 2) + (UP_IMG_H / 2)))
-    up_canvas.photo = ImageTk.PhotoImage(up_img)
+    up_resize_img = up_img.resize((UP_SHOW_IMG_W, UP_SHOW_IMG_H))
+    up_canvas.photo = ImageTk.PhotoImage(up_resize_img)
     up_canvas.create_image(0, 0, image=up_canvas.photo, anchor=Tkinter.NW)
 
     # 画像変換
@@ -172,7 +175,7 @@ Fr_Side.pack(side='left', expand=True, fill="none")
 Lb_Judge = Tkinter.Label(Fr_Side, text='--', height=4, font=("", 50))
 Lb_Judge.pack(anchor='n' , side='top', expand=True, fill="none")
 
-up_canvas = Tkinter.Canvas(Fr_Side, bg = "black", width=UP_IMG_W, height=UP_IMG_H)
+up_canvas = Tkinter.Canvas(Fr_Side, bg = "black", width=UP_SHOW_IMG_W, height=UP_SHOW_IMG_H)
 up_canvas.pack(side='top')
 
 
