@@ -12,6 +12,8 @@ import threading
 SERIAL_PORT = ""
 DEF_IMG_W = 1600
 DEF_IMG_H = 1200
+UP_IMG_W = 350
+UP_IMG_H = 350
 
 def get_command(device):
     rx_buffer = ""
@@ -99,6 +101,11 @@ def capture():
     resize_img = img.resize((MAIN_IMG_W, MAIN_IMG_H))
     main_canvas.photo = ImageTk.PhotoImage(resize_img)
     main_canvas.create_image(0, 0, image=main_canvas.photo, anchor=Tkinter.NW)
+    # 拡大画像
+    up_img = img.crop(((DEF_IMG_W / 2) - (UP_IMG_W / 2), (DEF_IMG_H / 2) - (UP_IMG_H / 2), (DEF_IMG_W / 2) + (UP_IMG_W / 2), (DEF_IMG_H / 2) + (UP_IMG_H / 2)))
+    up_canvas.photo = ImageTk.PhotoImage(up_img)
+    up_canvas.create_image(0, 0, image=up_canvas.photo, anchor=Tkinter.NW)
+
     # 画像変換
     dec_img = cv2.cvtColor(src_img, cv2.COLOR_RGB2GRAY)
     lap_img = cv2.Laplacian(dec_img, cv2.CV_16S, ksize = 3, scale = 1, delta = 0, borderType = cv2.BORDER_DEFAULT)
@@ -118,6 +125,7 @@ def th_init_el_board(event):
 def th_capture(event):
     Lb_Judge.configure(text='撮影中')
     main_canvas.delete("all")
+    up_canvas.delete("all")
 
     capture()
 
@@ -158,8 +166,15 @@ root = Tkinter.Tk()
 root.geometry("{0}x{1}+0+0".format(root.winfo_screenwidth(), root.winfo_screenheight()))
 root.bind("<Key>", key)
 
-Lb_Judge = Tkinter.Label(root, text='--', height=4, font=("", 50))
-Lb_Judge.pack(side='left', expand=True, fill="x")
+Fr_Side = Tkinter.Frame(root)
+Fr_Side.pack(side='left', expand=True, fill="none")
+
+Lb_Judge = Tkinter.Label(Fr_Side, text='--', height=4, font=("", 50))
+Lb_Judge.pack(anchor='n' , side='top', expand=True, fill="none")
+
+up_canvas = Tkinter.Canvas(Fr_Side, bg = "black", width=UP_IMG_W, height=UP_IMG_H)
+up_canvas.pack(side='top')
+
 
 MAIN_IMG_W = root.winfo_screenwidth() / 4 * 3
 MAIN_IMG_H = int(round(DEF_IMG_H * MAIN_IMG_W / DEF_IMG_W))
