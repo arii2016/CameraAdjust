@@ -12,6 +12,12 @@ import threading
 SERIAL_PORT = ""
 DEF_IMG_W = 1600
 DEF_IMG_H = 1200
+UP_SHOW_IMG_W = 360
+UP_SHOW_IMG_H = 360
+UP_IMG_W = 120
+UP_IMG_H = 120
+UP_IMG_OFFSET_X = 100
+UP_IMG_OFFSET_Y = 100
 
 def get_command(device):
     rx_buffer = ""
@@ -70,24 +76,6 @@ def init_el_board():
         Lb_Judge.configure(text='起動失敗1')
         return False
 
-    # 撮像
-    device.write("C01\n")
-    strRet = get_command(device)
-    if strRet == "NG":
-        Lb_Judge.configure(text='起動失敗2')
-        return False
-
-    iSize = int(strRet)
-    iCnt = 0
-    datas = ""
-    while True:
-        chars = device.read(30000)
-        if len(chars) > 0:
-            datas = datas + chars
-            iCnt = iCnt + len(chars)
-        if iSize <= iCnt:
-            break
-
     return True
 
 # 撮像
@@ -117,6 +105,12 @@ def capture():
     resize_img = img.resize((MAIN_IMG_W, MAIN_IMG_H))
     main_canvas.photo = ImageTk.PhotoImage(resize_img)
     main_canvas.create_image(0, 0, image=main_canvas.photo, anchor=Tkinter.NW)
+    # 拡大画像
+    up_img = img.crop(((DEF_IMG_W / 2) - (UP_IMG_W / 2) + UP_IMG_OFFSET_X, (DEF_IMG_H / 2) - (UP_IMG_H / 2) + UP_IMG_OFFSET_Y, (DEF_IMG_W / 2) + (UP_IMG_W / 2) + UP_IMG_OFFSET_X, (DEF_IMG_H / 2) + (UP_IMG_H / 2) + UP_IMG_OFFSET_Y))
+    up_resize_img = up_img.resize((UP_SHOW_IMG_W, UP_SHOW_IMG_H))
+    up_canvas.photo = ImageTk.PhotoImage(up_resize_img)
+    up_canvas.create_image(0, 0, image=up_canvas.photo, anchor=Tkinter.NW)
+
     # 画像変換
     dec_img = cv2.cvtColor(src_img, cv2.COLOR_RGB2GRAY)
     lap_img = cv2.Laplacian(dec_img, cv2.CV_16S, ksize = 3, scale = 1, delta = 0, borderType = cv2.BORDER_DEFAULT)
@@ -136,6 +130,7 @@ def th_init_el_board(event):
 def th_capture(event):
     Lb_Judge.configure(text='撮影中')
     main_canvas.delete("all")
+    up_canvas.delete("all")
 
     capture()
 
@@ -154,10 +149,13 @@ def key(event):
 
 
 # ポート番号を取得する##################################
-if sys.platform == "linux" or sys.platform == "linux2":
-    matched_ports = list_ports.grep("ttyUSB")
-elif sys.platform == "darwin":
-    matched_ports = list_ports.grep("cu.usbserial-")
+if os.name == 'nt':
+    matched_ports = list_ports.grep("USB Serial Port ")
+elif os.name == 'posix':
+    if sys.platform == "linux" or sys.platform == "linux2":
+        matched_ports = list_ports.grep("ttyUSB")
+    elif sys.platform == "darwin":
+        matched_ports = list_ports.grep("cu.usbserial-")
 for match_tuple in matched_ports:
     SERIAL_PORT = match_tuple[0]
     break
@@ -173,8 +171,15 @@ root = Tkinter.Tk()
 root.geometry("{0}x{1}+0+0".format(root.winfo_screenwidth(), root.winfo_screenheight()))
 root.bind("<Key>", key)
 
-Lb_Judge = Tkinter.Label(root, text='--', height=4, font=("", 50))
-Lb_Judge.pack(side='left', expand=True, fill="x")
+Fr_Side = Tkinter.Frame(root)
+Fr_Side.pack(side='left', expand=True, fill="none")
+
+Lb_Judge = Tkinter.Label(Fr_Side, text='--', height=4, font=("", 50))
+Lb_Judge.pack(anchor='n' , side='top', expand=True, fill="none")
+
+up_canvas = Tkinter.Canvas(Fr_Side, bg = "black", width=UP_SHOW_IMG_W, height=UP_SHOW_IMG_H)
+up_canvas.pack(side='top')
+
 
 MAIN_IMG_W = root.winfo_screenwidth() / 4 * 3
 MAIN_IMG_H = int(round(DEF_IMG_H * MAIN_IMG_W / DEF_IMG_W))
