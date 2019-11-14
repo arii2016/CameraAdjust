@@ -14,8 +14,10 @@ DEF_IMG_W = 1600
 DEF_IMG_H = 1200
 UP_SHOW_IMG_W = 360
 UP_SHOW_IMG_H = 360
-UP_IMG_W = 240
-UP_IMG_H = 240
+UP_IMG_W = 120
+UP_IMG_H = 120
+UP_IMG_OFFSET_X = 100
+UP_IMG_OFFSET_Y = 100
 
 def get_command(device):
     rx_buffer = ""
@@ -104,7 +106,7 @@ def capture():
     main_canvas.photo = ImageTk.PhotoImage(resize_img)
     main_canvas.create_image(0, 0, image=main_canvas.photo, anchor=Tkinter.NW)
     # 拡大画像
-    up_img = img.crop(((DEF_IMG_W / 2) - (UP_IMG_W / 2), (DEF_IMG_H / 2) - (UP_IMG_H / 2), (DEF_IMG_W / 2) + (UP_IMG_W / 2), (DEF_IMG_H / 2) + (UP_IMG_H / 2)))
+    up_img = img.crop(((DEF_IMG_W / 2) - (UP_IMG_W / 2) + UP_IMG_OFFSET_X, (DEF_IMG_H / 2) - (UP_IMG_H / 2) + UP_IMG_OFFSET_Y, (DEF_IMG_W / 2) + (UP_IMG_W / 2) + UP_IMG_OFFSET_X, (DEF_IMG_H / 2) + (UP_IMG_H / 2) + UP_IMG_OFFSET_Y))
     up_resize_img = up_img.resize((UP_SHOW_IMG_W, UP_SHOW_IMG_H))
     up_canvas.photo = ImageTk.PhotoImage(up_resize_img)
     up_canvas.create_image(0, 0, image=up_canvas.photo, anchor=Tkinter.NW)
