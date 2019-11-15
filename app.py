@@ -115,7 +115,7 @@ def capture():
     lap_img = cv2.Laplacian(dec_img, cv2.CV_16S, ksize = 3, scale = 1, delta = 0, borderType = cv2.BORDER_DEFAULT)
     abs_img = cv2.convertScaleAbs(lap_img)
     # エッジ拡大画像
-    img = Image.fromarray(abs_img)
+    img = Image.fromarray(lap_img)
     edge_img = img.crop(((DEF_IMG_W / 2) - (UP_IMG_W / 2) + UP_IMG_OFFSET_X, (DEF_IMG_H / 2) - (UP_IMG_H / 2) + UP_IMG_OFFSET_Y, (DEF_IMG_W / 2) + (UP_IMG_W / 2) + UP_IMG_OFFSET_X, (DEF_IMG_H / 2) + (UP_IMG_H / 2) + UP_IMG_OFFSET_Y))
     edge_resize_img = edge_img.resize((UP_SHOW_IMG_W, UP_SHOW_IMG_H))
     edge_canvas.photo = ImageTk.PhotoImage(edge_resize_img)
@@ -136,6 +136,7 @@ def th_capture(event):
     Lb_Judge.configure(text='撮影中')
     main_canvas.delete("all")
     up_canvas.delete("all")
+    edge_canvas.delete("all")
 
     capture()
 
