@@ -110,7 +110,6 @@ def capture():
     up_resize_img = up_img.resize((UP_SHOW_IMG_W, UP_SHOW_IMG_H))
     up_canvas.photo = ImageTk.PhotoImage(up_resize_img)
     up_canvas.create_image(0, 0, image=up_canvas.photo, anchor=Tkinter.NW)
-
     # 画像変換
     dec_img = cv2.cvtColor(src_img, cv2.COLOR_RGB2GRAY)
     lap_img = cv2.Laplacian(dec_img, cv2.CV_16S, ksize = 3, scale = 1, delta = 0, borderType = cv2.BORDER_DEFAULT)
@@ -180,6 +179,8 @@ Lb_Judge.pack(anchor='n' , side='top', expand=True, fill="none")
 up_canvas = Tkinter.Canvas(Fr_Side, bg = "black", width=UP_SHOW_IMG_W, height=UP_SHOW_IMG_H)
 up_canvas.pack(side='top')
 
+edge_canvas = Tkinter.Canvas(Fr_Side, bg = "black", width=UP_SHOW_IMG_W, height=UP_SHOW_IMG_H)
+edge_canvas.pack(side='top')
 
 MAIN_IMG_W = root.winfo_screenwidth() / 4 * 3
 MAIN_IMG_H = int(round(DEF_IMG_H * MAIN_IMG_W / DEF_IMG_W))
