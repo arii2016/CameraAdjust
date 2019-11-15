@@ -13,9 +13,9 @@ SERIAL_PORT = ""
 DEF_IMG_W = 1600
 DEF_IMG_H = 1200
 UP_SHOW_IMG_W = 360
-UP_SHOW_IMG_H = 360
+UP_SHOW_IMG_H = 300
 UP_IMG_W = 120
-UP_IMG_H = 120
+UP_IMG_H = 100
 UP_IMG_OFFSET_X = 100
 UP_IMG_OFFSET_Y = 100
 
@@ -173,7 +173,7 @@ root.bind("<Key>", key)
 Fr_Side = Tkinter.Frame(root)
 Fr_Side.pack(side='left', expand=True, fill="none")
 
-Lb_Judge = Tkinter.Label(Fr_Side, text='--', height=4, font=("", 50))
+Lb_Judge = Tkinter.Label(Fr_Side, text='--', height=4, font=("", 28))
 Lb_Judge.pack(anchor='n' , side='top', expand=True, fill="none")
 
 up_canvas = Tkinter.Canvas(Fr_Side, bg = "black", width=UP_SHOW_IMG_W, height=UP_SHOW_IMG_H)
