@@ -180,7 +180,7 @@ root.bind("<Key>", key)
 Fr_Side = Tkinter.Frame(root)
 Fr_Side.pack(side='left', expand=True, fill="none")
 
-Lb_Judge = Tkinter.Label(Fr_Side, text='--', height=3, font=("", 28))
+Lb_Judge = Tkinter.Label(Fr_Side, text='--', height=2, font=("", 28))
 Lb_Judge.pack(anchor='n' , side='top', expand=True, fill="none")
 
 up_canvas = Tkinter.Canvas(Fr_Side, bg = "black", width=UP_SHOW_IMG_W, height=UP_SHOW_IMG_H)
