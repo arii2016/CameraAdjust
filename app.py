@@ -114,6 +114,12 @@ def capture():
     dec_img = cv2.cvtColor(src_img, cv2.COLOR_RGB2GRAY)
     lap_img = cv2.Laplacian(dec_img, cv2.CV_16S, ksize = 3, scale = 1, delta = 0, borderType = cv2.BORDER_DEFAULT)
     abs_img = cv2.convertScaleAbs(lap_img)
+    # エッジ拡大画像
+    img = Image.fromarray(abs_img)
+    edge_img = img.crop(((DEF_IMG_W / 2) - (UP_IMG_W / 2) + UP_IMG_OFFSET_X, (DEF_IMG_H / 2) - (UP_IMG_H / 2) + UP_IMG_OFFSET_Y, (DEF_IMG_W / 2) + (UP_IMG_W / 2) + UP_IMG_OFFSET_X, (DEF_IMG_H / 2) + (UP_IMG_H / 2) + UP_IMG_OFFSET_Y))
+    edge_resize_img = edge_img.resize((UP_SHOW_IMG_W, UP_SHOW_IMG_H))
+    edge_canvas.photo = ImageTk.PhotoImage(edge_resize_img)
+    edge_canvas.create_image(0, 0, image=edge_canvas.photo, anchor=Tkinter.NW)
     # スコア計算
     mean, stddev = cv2.meanStdDev(abs_img)
     Lb_Judge.configure(text=str(int(stddev[0] * stddev[0])))
@@ -173,7 +179,7 @@ root.bind("<Key>", key)
 Fr_Side = Tkinter.Frame(root)
 Fr_Side.pack(side='left', expand=True, fill="none")
 
-Lb_Judge = Tkinter.Label(Fr_Side, text='--', height=3, font=("", 38))
+Lb_Judge = Tkinter.Label(Fr_Side, text='--', height=3, font=("", 28))
 Lb_Judge.pack(anchor='n' , side='top', expand=True, fill="none")
 
 up_canvas = Tkinter.Canvas(Fr_Side, bg = "black", width=UP_SHOW_IMG_W, height=UP_SHOW_IMG_H)
