@@ -8,6 +8,7 @@ import numpy
 from PIL import Image, ImageTk
 import Tkinter
 import threading
+import requests
 
 SERIAL_PORT = ""
 DEF_IMG_W = 1600
@@ -18,6 +19,9 @@ UP_IMG_W = 120
 UP_IMG_H = 100
 UP_IMG_OFFSET_X = 100
 UP_IMG_OFFSET_Y = 100
+
+line_buf = ""
+img_datas = ""
 
 def get_command(device):
     rx_buffer = ""
@@ -89,16 +93,17 @@ def capture():
 
     iSize = int(strRet)
     iCnt = 0
-    datas = ""
+    global img_datas
+    img_datas = ""
     while True:
         chars = device.read(30000)
         if len(chars) > 0:
-            datas = datas + chars
+            img_datas = img_datas + chars
             iCnt = iCnt + len(chars)
         if iSize <= iCnt:
             break
 
-    img_array = numpy.fromstring(datas, numpy.uint8)
+    img_array = numpy.fromstring(img_datas, numpy.uint8)
     src_img = cv2.imdecode(img_array, cv2.IMREAD_COLOR)
     img = Image.fromarray(src_img)
     # 全体画像に表示
@@ -125,6 +130,20 @@ def capture():
     Lb_Judge.configure(text=str(int(stddev[0] * stddev[0])))
 
 
+# 画像をサーバーに保存
+def save_image(qr_code):
+    headers = {'Content-Type': 'image/jpeg'}
+    url = "http://ubuntu.local/upload_image?serial_no=" + qr_code + "&img_type=0"
+
+    global img_datas
+    response = requests.post(url, img_datas, headers=headers)
+    if response.status_code != 200:
+        Lb_Judge.configure(text='保存失敗')
+        return
+
+    Lb_Judge.configure(text='保存成功')
+
+
 def th_init_el_board(event):
     Lb_Judge.configure(text='起動中')
     if init_el_board() == True:
@@ -142,16 +161,36 @@ def th_capture(event):
 
     lock.release()
 
+def th_save_image(buf):
+    Lb_Judge.configure(text='保存中')
+
+    save_image(buf)
+
+    lock.release()
+
 
 def key(event):
-    if event.char == chr(0x0D):
-        if lock.acquire(False):
-            th = threading.Thread(target=th_init_el_board, args=(event,))
-            th.start()
+    global line_buf
+
     if event.char == ' ':
         if lock.acquire(False):
             th = threading.Thread(target=th_capture, args=(event,))
             th.start()
+        return
+
+    if event.char != chr(0x0D):
+        line_buf = line_buf + event.char
+        return
+
+    if line_buf == "":
+        if lock.acquire(False):
+            th = threading.Thread(target=th_init_el_board, args=(event,))
+            th.start()
+    else:
+        if lock.acquire(False):
+            th = threading.Thread(target=th_save_image, args=(line_buf,))
+            th.start()
+        line_buf = ""
 
 
 # ポート番号を取得する##################################
