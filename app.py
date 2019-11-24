@@ -9,6 +9,8 @@ from PIL import Image, ImageTk
 import Tkinter
 import threading
 import requests
+import logging
+import logging.handlers
 
 SERIAL_PORT = ""
 DEF_IMG_W = 1600
@@ -22,6 +24,11 @@ UP_IMG_OFFSET_Y = 100
 
 line_buf = ""
 img_datas = ""
+
+logger = logging.getLogger('CameraAddjust')
+logger.setLevel(logging.INFO)
+handler = logging.handlers.SysLogHandler(address = ('ubuntu.local', 514))
+logger.addHandler(handler)
 
 def get_command(device):
     rx_buffer = ""
@@ -136,6 +143,7 @@ def save_image(qr_code):
     url = "http://ubuntu.local/upload_image?serial_no=" + qr_code + "&img_type=0"
 
     global img_datas
+    logger.info("image size: " + len(img_datas))
     response = requests.post(url, img_datas, headers=headers)
     if response.status_code != 200:
         Lb_Judge.configure(text='保存失敗')
