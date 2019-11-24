@@ -29,6 +29,7 @@ logger = logging.getLogger('CameraAddjust')
 logger.setLevel(logging.INFO)
 handler = logging.handlers.SysLogHandler(address = ('ubuntu.local', 514))
 logger.addHandler(handler)
+logger.info("start CameraAdjust")
 
 def get_command(device):
     rx_buffer = ""
