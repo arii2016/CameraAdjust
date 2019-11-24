@@ -182,15 +182,16 @@ def key(event):
         line_buf = line_buf + event.char
         return
 
-    if line_buf == "":
-        if lock.acquire(False):
-            th = threading.Thread(target=th_init_el_board, args=(event,))
-            th.start()
-    else:
+    if line_buf.startswith("ELCAM"):
         if lock.acquire(False):
             th = threading.Thread(target=th_save_image, args=(line_buf,))
             th.start()
-        line_buf = ""
+    else:
+        if lock.acquire(False):
+            th = threading.Thread(target=th_init_el_board, args=(event,))
+            th.start()
+
+    line_buf = ""
 
 
 # ポート番号を取得する##################################
