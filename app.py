@@ -10,7 +10,8 @@ import Tkinter
 import threading
 import requests
 import logging
-import logging.handlers
+import socket
+from logging.handlers import SysLogHandler
 
 SERIAL_PORT = ""
 DEF_IMG_W = 1600
@@ -30,11 +31,26 @@ if sys.platform == "linux" or sys.platform == "linux2":
 elif sys.platform == "darwin":
     base_url = "http://localhost"
 
-logger = logging.getLogger('CameraAddjust')
+
+class ContextFilter(logging.Filter):
+    hostname = socket.gethostname()
+
+    def filter(self, record):
+        record.hostname = ContextFilter.hostname
+        return True
+
+syslog = SysLogHandler(address=('ubuntu.local', 514))
+syslog.addFilter(ContextFilter())
+
+format = '%(asctime)s %(hostname)s CameraAddjust: %(message)s'
+formatter = logging.Formatter(format, datefmt='%b %d %H:%M:%S')
+syslog.setFormatter(formatter)
+
+logger = logging.getLogger()
+logger.addHandler(syslog)
 logger.setLevel(logging.INFO)
-handler = logging.handlers.SysLogHandler(address = ('ubuntu.local', 514))
-logger.addHandler(handler)
-logger.info("start CameraAdjust")
+
+logger.info("Start App")
 
 def get_command(device):
     rx_buffer = ""
