@@ -25,6 +25,11 @@ UP_IMG_OFFSET_Y = 100
 line_buf = ""
 img_datas = ""
 
+if sys.platform == "linux" or sys.platform == "linux2":
+    base_url = "http://ubuntu.local"
+elif sys.platform == "darwin":
+    base_url = "http://localhost"
+
 logger = logging.getLogger('CameraAddjust')
 logger.setLevel(logging.INFO)
 handler = logging.handlers.SysLogHandler(address = ('ubuntu.local', 514))
@@ -141,10 +146,10 @@ def capture():
 # 画像をサーバーに保存
 def save_image(qr_code):
     headers = {'Content-Type': 'image/jpeg'}
-    url = "http://ubuntu.local/upload_image?serial_no=" + qr_code + "&img_type=0"
+    url = base_url + "/upload_image?serial_no=" + qr_code + "&img_type=0"
 
     global img_datas
-    logger.info("image size: " + len(img_datas))
+    logger.info(qr_code + " image size: " + str(len(img_datas)))
     response = requests.post(url, img_datas, headers=headers)
     if response.status_code != 200:
         Lb_Judge.configure(text='保存失敗')
