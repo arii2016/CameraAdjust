@@ -157,7 +157,7 @@ def capture():
 # 画像をサーバーに保存
 def save_image(qr_code):
     headers = {'Content-Type': 'image/jpeg'}
-    url = base_url + "/upload_image?serial_no=" + qr_code + "&img_type=0"
+    url = base_url + "upload_image?serial_no=" + qr_code + "&img_type=0"
 
     global img_datas
     logger.info(qr_code + " image size: " + str(len(img_datas)))
