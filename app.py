@@ -13,6 +13,7 @@ import logging
 import socket
 from logging.handlers import SysLogHandler
 
+base_url = ""
 SERIAL_PORT = ""
 DEF_IMG_W = 1600
 DEF_IMG_H = 1200
@@ -25,12 +26,6 @@ UP_IMG_OFFSET_Y = 100
 
 line_buf = ""
 img_datas = ""
-
-if sys.platform == "linux" or sys.platform == "linux2":
-    base_url = "http://ubuntu.local"
-elif sys.platform == "darwin":
-    base_url = "http://localhost"
-
 
 class ContextFilter(logging.Filter):
     hostname = socket.gethostname()
@@ -223,6 +218,15 @@ def key(event):
 
     line_buf = ""
 
+
+# IPアドレスを取得する##################################
+if sys.platform == "linux" or sys.platform == "linux2":
+    address = "ubuntu.local"
+elif sys.platform == "darwin":
+    address = "localhost"
+
+ip = socket.gethostbyname(address)
+base_url = "http://" + ip + "/"
 
 # ポート番号を取得する##################################
 if os.name == 'nt':
