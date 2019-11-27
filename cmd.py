@@ -94,7 +94,6 @@ def save_image(qr_code):
     url = base_url + "upload_image?serial_no=" + qr_code + "&img_type=0"
 
     global img_datas
-    logger.info(qr_code + " image size: " + str(len(img_datas)))
     response = requests.post(url, img_datas, headers=headers)
     if response.status_code != 200:
         return False
