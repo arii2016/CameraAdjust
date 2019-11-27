@@ -207,7 +207,7 @@ def key(event):
         line_buf = line_buf + event.char
         return
 
-    if line_buf.startswith("ELCAM"):
+    if len(line_buf) == 6:
         if lock.acquire(False):
             th = threading.Thread(target=th_save_image, args=(line_buf,))
             th.start()
