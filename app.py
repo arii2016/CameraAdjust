@@ -77,7 +77,7 @@ def init_el_board():
     device.write(chr(0x13))
 
     # 再起動
-    device.write("S04\n")
+    device.write("S03\n")
     strRet = get_line(device)
     if strRet != "OK":
         Lb_Judge.configure(text='reboot1失敗')
