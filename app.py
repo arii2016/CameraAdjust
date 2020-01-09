@@ -12,6 +12,7 @@ import requests
 import logging
 import socket
 from logging.handlers import SysLogHandler
+import RPi.GPIO as GPIO
 
 base_url = ""
 SERIAL_PORT = ""
@@ -26,6 +27,9 @@ UP_IMG_OFFSET_Y = 100
 
 line_buf = ""
 img_datas = ""
+
+GPIO_BUTTON_INIT = 23
+GPIO_BUTTON_CAPTUER = 24
 
 class ContextFilter(logging.Filter):
     hostname = socket.gethostname()
@@ -169,14 +173,14 @@ def save_image(qr_code):
     Lb_Judge.configure(text='保存成功')
 
 
-def th_init_el_board(event):
+def th_init_el_board():
     Lb_Judge.configure(text='起動中')
     if init_el_board() == True:
         Lb_Judge.configure(text='起動完了')
 
     lock.release()
 
-def th_capture(event):
+def th_capture():
     Lb_Judge.configure(text='撮影中')
     main_canvas.delete("all")
     up_canvas.delete("all")
@@ -197,12 +201,6 @@ def th_save_image(buf):
 def key(event):
     global line_buf
 
-    if event.char == ' ':
-        if lock.acquire(False):
-            th = threading.Thread(target=th_capture, args=(event,))
-            th.start()
-        return
-
     if event.char != chr(0x0D):
         line_buf = line_buf + event.char
         return
@@ -211,13 +209,26 @@ def key(event):
         if lock.acquire(False):
             th = threading.Thread(target=th_save_image, args=(line_buf,))
             th.start()
-    else:
-        if lock.acquire(False):
-            th = threading.Thread(target=th_init_el_board, args=(event,))
-            th.start()
 
     line_buf = ""
 
+def button_init_callback(channel):
+    if lock.acquire(False):
+        th = threading.Thread(target=th_init_el_board)
+        th.start()
+
+def button_captuer_callback(channel):
+    if lock.acquire(False):
+        th = threading.Thread(target=th_capture)
+        th.start()
+
+
+# GPIO初期化##################################
+GPIO.setmode(GPIO.BCM)
+GPIO.setup(GPIO_BUTTON_INIT, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+GPIO.setup(GPIO_BUTTON_CAPTUER, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+GPIO.add_event_detect(GPIO_BUTTON_INIT, GPIO.FALLING, callback=button_init_callback, bouncetime=1000)
+GPIO.add_event_detect(GPIO_BUTTON_CAPTUER, GPIO.FALLING, callback=button_captuer_callback, bouncetime=1000)
 
 # IPアドレスを取得する##################################
 if sys.platform == "linux" or sys.platform == "linux2":
